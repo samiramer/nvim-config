@@ -14,6 +14,11 @@ vim.pack.add({
 	"https://github.com/lewis6991/gitsigns.nvim",
 	"https://github.com/ellisonleao/gruvbox.nvim",
 	"https://github.com/projekt0n/github-nvim-theme",
+	"https://github.com/nvim-treesitter/nvim-treesitter",
+	"https://github.com/antoinemadec/FixCursorHold.nvim",
+	"https://github.com/nvim-neotest/nvim-nio",
+	"https://github.com/nvim-neotest/neotest",
+	"https://github.com/V13Axel/neotest-pest",
 })
 
 vim.g.mapleader = " "
@@ -61,6 +66,7 @@ vim.keymap.set("n", "<leader>tl", function()
 	vim.o.number = not vim.o.number
 	vim.o.relativenumber = not vim.o.relativenumber
 	-- vim.o.signcolumn = (vim.o.signcolumn ~= "no") and "no" or "yes"
+	vim.notify("Line numbers " .. (vim.o.number and "enabled" or "disabled"))
 end, { silent = true, desc = "Toggle line numbers" })
 --
 
@@ -214,7 +220,7 @@ require("snacks").setup({
 		},
 		sources = {
 			explorer = {
-				layout = { layout = { position = "right" } },
+				layout = { layout = { position = "right", width = 0.3 } },
 			},
 		},
 	},
@@ -269,6 +275,38 @@ vim.keymap.set("n", "<leader>gb", function()
 end, { desc = "Git blame line" })
 --
 
+-- treesitter setup
+require("nvim-treesitter").setup()
+require("nvim-treesitter").install({ "blade", "javascript", "lua", "markdown", "php", "twig", "typescript" })
+vim.api.nvim_create_autocmd("FileType", {
+	group = vim.api.nvim_create_augroup("Treesitter start", { clear = true }),
+	pattern = "*",
+	callback = function(args)
+		pcall(vim.treesitter.start, args.buf)
+	end,
+})
+--
+
+-- neotest setup
+require("neotest").setup({
+	adapters = {
+		require("neotest-pest"),
+	},
+})
+vim.keymap.set("n", "<leader>rn", function()
+	require("neotest").run.run()
+end, { silent = true, desc = "Run nearest test" })
+vim.keymap.set("n", "<leader>rl", function()
+	require("neotest").run.run_last()
+end, { silent = true, desc = "Run last test run" })
+vim.keymap.set("n", "<leader>rf", function()
+	require("neotest").run.run(vim.fn.expand("%"))
+end, { silent = true, desc = "Run tests in current file" })
+vim.keymap.set("n", "<leader>ro", function()
+	require("neotest").summary.toggle()
+end, { silent = true, desc = "Toggle neotest summary" })
+--
+
 -- formatter setup
 local util = require("conform.util")
 require("conform").setup({
@@ -284,8 +322,15 @@ require("conform").setup({
 		},
 	},
 	formatters_by_ft = {
+		javascript = { "prettier" },
+		javascriptreact = { "prettier" },
+		json = { "prettier" },
 		lua = { "stylua" },
-		php = { "pint" },
+		markdown = { "prettier" },
+		php = { "php_cs_fixer", "pint" },
+		typescript = { "prettier" },
+		typescriptreact = { "prettier" },
+		vue = { "prettier" },
 	},
 })
 vim.keymap.set("n", "<leader>lf", function()
@@ -299,21 +344,25 @@ vim.diagnostic.config({ virtual_text = false, underline = true, signs = false })
 vim.keymap.set("n", "<leader>td", function()
 	local status = vim.diagnostic.config().virtual_text
 	vim.diagnostic.config({ virtual_text = not status })
+	vim.notify("Diagnostic virtual text " .. (vim.diagnostic.config().virtual_text and "enabled" or "disabled"))
 end, { silent = true, desc = "Toggle diagnostic virtual text" })
 
 vim.keymap.set("n", "<leader>tc", function()
 	vim.lsp.codelens.enable(not vim.lsp.codelens.is_enabled())
+	vim.notify("Codelens " .. (vim.lsp.codelens.is_enabled() and "enabled" or "disabled"))
 end, { silent = true, desc = "Toggle LSP codelens" })
 
 vim.keymap.set("n", "<leader>th", function()
 	vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+	vim.notify("Inlay hints " .. (vim.lsp.inlay_hint.is_enabled() and "enabled" or "disabled"))
 end, { silent = true, desc = "Toggle inlay hints" })
 
 vim.api.nvim_create_autocmd("LspAttach", {
+	desc = "Set some keymaps when LSP attaches to buffer",
 	callback = function(_)
 		vim.keymap.set("n", "K", vim.lsp.buf.hover)
-		vim.keymap.set("n", "gd", vim.lsp.buf.declaration)
-		vim.keymap.set("n", "gD", require("snacks").picker.lsp_definitions)
+		vim.keymap.set("n", "gD", vim.lsp.buf.declaration)
+		vim.keymap.set("n", "gd", require("snacks").picker.lsp_definitions)
 		vim.keymap.set("n", "gr", require("snacks").picker.lsp_references)
 		vim.keymap.set("n", "gi", require("snacks").picker.lsp_implementations)
 		vim.keymap.set("n", "<leader>ll", function()
@@ -387,8 +436,41 @@ vim.lsp.config("intelephense", {
 	},
 })
 
+vim.lsp.config("ts_ls", {
+	init_options = {
+		plugins = {
+			{
+				name = "@vue/typescript-plugin",
+				location = vim.fn.stdpath("data")
+					.. "/mason/packages/vue-language-server/node_modules/@vue/language-server",
+				languages = { "vue" },
+				configNamespace = "typescript",
+			},
+		},
+		preferences = {
+			importModuleSpecifierPreference = "non-relative",
+			importModuleSpecifierEnding = "minimal",
+		},
+	},
+	filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
+	settings = {
+		typescript = {
+			preferences = {
+				importModuleSpecifierPreference = "non-relative",
+			},
+		},
+		javascript = {
+			preferences = {
+				importModuleSpecifierPreference = "non-relative",
+			},
+		},
+	},
+})
+
 vim.lsp.enable({
+	"eslint",
 	"lua_ls",
 	"intelephense",
+	"ts_ls",
 })
 --
