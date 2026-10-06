@@ -129,7 +129,7 @@ end
 require("gruvbox").setup({ bold = false })
 do
 	local themes = {
-		light = "github_light_default",
+		light = "gruvbox",
 		dark = "gruvbox",
 	}
 
@@ -138,6 +138,7 @@ do
 	local theme = ok and lines[1] and vim.trim(lines[1]) or "dark"
 
 	vim.cmd.colorscheme(themes[theme] or themes.dark)
+	vim.o.background = theme
 end
 --
 
@@ -220,7 +221,8 @@ require("snacks").setup({
 		},
 		sources = {
 			explorer = {
-				layout = { layout = { position = "right", width = 0.3 } },
+				follow_file = false,
+				layout = { layout = { position = "left", width = 0.3 } },
 			},
 		},
 	},
@@ -277,7 +279,7 @@ end, { desc = "Git blame line" })
 
 -- treesitter setup
 require("nvim-treesitter").setup()
-require("nvim-treesitter").install({ "blade", "javascript", "lua", "markdown", "php", "twig", "typescript" })
+require("nvim-treesitter").install({ "blade", "javascript", "json", "lua", "markdown", "php", "twig", "typescript" })
 vim.api.nvim_create_autocmd("FileType", {
 	group = vim.api.nvim_create_augroup("Treesitter start", { clear = true }),
 	pattern = "*",
