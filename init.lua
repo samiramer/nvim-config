@@ -240,11 +240,11 @@ vim.keymap.set("n", "<leader>fb", function()
 	Snacks.picker.buffers()
 end, { desc = "Find open buffer" })
 
-vim.keymap.set("n", "<leader>fs", function()
+vim.keymap.set("n", "<leader>fw", function()
 	Snacks.picker.grep()
 end, { desc = "Grep in files" })
 
-vim.keymap.set("n", "<leader>fw", function()
+vim.keymap.set("n", "<leader>fc", function()
 	Snacks.picker.grep_word()
 end, { desc = "Grep current word in files" })
 
