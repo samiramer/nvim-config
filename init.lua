@@ -19,7 +19,7 @@ vim.pack.add({
 	"https://github.com/nvim-neotest/nvim-nio",
 	"https://github.com/nvim-neotest/neotest",
 	"https://github.com/V13Axel/neotest-pest",
-    "https://github.com/sainnhe/gruvbox-material",
+	"https://github.com/sainnhe/gruvbox-material",
 })
 
 vim.g.mapleader = " "
@@ -159,6 +159,43 @@ require("mini.comment").setup()
 require("mini.icons").setup()
 require("mini.move").setup()
 require("mini.pairs").setup()
+--
+
+-- statusline
+local statusline = require("mini.statusline")
+statusline.setup({
+	content = {
+		active = function()
+			-- relative path, with directories shortened (l/f/bar.lua) when the window is narrow
+			local path = statusline.is_truncated(120) and "%{pathshorten(expand('%:~:.'))}" or "%f"
+			local lsp_names = vim.tbl_map(function(client)
+				return client.name
+			end, vim.lsp.get_clients({ bufnr = 0 }))
+
+			return statusline.combine_groups({
+				{ strings = { path .. "%m" } },
+				"%=",
+				{
+					strings = {
+						statusline.section_diagnostics({}),
+						statusline.section_diff({}),
+						table.concat(lsp_names, ", "),
+						statusline.section_git({}),
+						"%l/%L",
+					},
+				},
+			})
+		end,
+	},
+})
+-- gitsigns updates in the background, so redraw once it has new data
+vim.api.nvim_create_autocmd("User", { pattern = "GitSignsUpdate", command = "redrawstatus" })
+-- transparent background, re-applied whenever the colorscheme is (re)loaded
+local function transparent_statusline()
+	vim.cmd("highlight StatusLine guibg=NONE ctermbg=NONE")
+end
+transparent_statusline()
+vim.api.nvim_create_autocmd("ColorScheme", { callback = transparent_statusline })
 --
 
 -- gitsigns setup
