@@ -19,6 +19,7 @@ vim.pack.add({
 	"https://github.com/nvim-neotest/nvim-nio",
 	"https://github.com/nvim-neotest/neotest",
 	"https://github.com/V13Axel/neotest-pest",
+    "https://github.com/sainnhe/gruvbox-material",
 })
 
 vim.g.mapleader = " "
@@ -126,11 +127,16 @@ end
 --
 
 -- colorscheme based on system theme
+vim.cmd([[
+    let g:gruvbox_material_background = 'hard'
+    let g:gruvbox_material_better_performance = 1
+]])
+
 require("gruvbox").setup({ bold = false })
 do
 	local themes = {
-		light = "gruvbox",
-		dark = "gruvbox",
+		light = "gruvbox-material",
+		dark = "gruvbox-material",
 	}
 
 	local path = vim.fs.normalize("~/.local/state/system-theme")
