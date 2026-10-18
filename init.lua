@@ -25,6 +25,7 @@ vim.pack.add({
 vim.g.mapleader = " "
 
 -- options
+vim.o.termguicolors = true
 vim.o.wrap = false
 vim.o.number = true
 vim.o.relativenumber = true

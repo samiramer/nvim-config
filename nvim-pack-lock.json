@@ -48,6 +48,10 @@
       "rev": "3388a5f00001303020ce885e18007ccd1835212c",
       "src": "https://github.com/V13Axel/neotest-pest"
     },
+    "nightfly": {
+      "rev": "2c31d07ce05efa92bcb7f893f9c74a846226c898",
+      "src": "https://github.com/bluz71/vim-nightfly-colors"
+    },
     "nvim-lspconfig": {
       "rev": "84252f9832fb5b9024fe9f7258e7c2aff915e6fb",
       "src": "https://github.com/neovim/nvim-lspconfig"
