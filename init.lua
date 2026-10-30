@@ -129,7 +129,7 @@ end
 
 -- colorscheme based on system theme
 vim.cmd([[
-    let g:gruvbox_material_background = 'hard'
+    let g:gruvbox_material_background = 'medium'
     let g:gruvbox_material_better_performance = 1
 ]])
 
